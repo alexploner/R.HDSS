@@ -1,0 +1,13 @@
+Package: R.HDSS
+Type: Package
+Title: Process HDSS demographic data from the INDEPTH project
+Version: 0.1
+Date: 2014-08-18
+Author: Alexander Ploner <Alexander.Ploner@ki.se>
+Maintainer: Alexander Ploner <Alexander.Ploner@ki.se>
+Description: The INDEPTH project collects data in numerous health and
+    demographic surveillance system (HDSS) field sites in Africa, Asia and
+    Oceania. This package provides methods for processing the data files
+    distributed through the INDEPTH website.
+URL: http://www.indepth-network.org/
+License: GPL (>=2)
