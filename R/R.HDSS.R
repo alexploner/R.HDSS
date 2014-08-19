@@ -8,7 +8,9 @@
 #' Note that while this package has been written to facilitate an existing
 #' collaboration within the INDEPTH project, it should not be considered part of
 #' INDEPTH. It is an independent effort to make available tools for processing
-#' and analysing the data distributed through the project. 
+#' and analysing the data distributed through the project.
+#'
+#' @references Osman Sankoh and Peter Byass. The INDEPTH Network: filling vital gaps in global epidemiology. Int J Epi 2012; 41:579-588
 #'
 #' @docType package
 #' @name R.HDSS
