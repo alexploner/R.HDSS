@@ -11,4 +11,6 @@ Description: The INDEPTH project collects data in numerous health and
     distributed through the INDEPTH website.
 URL: http://www.indepth-network.org/
 License: GPL (>=2)
-Depends: ISOcodes
+LazyData: true
+Depends:
+    ISOcodes
