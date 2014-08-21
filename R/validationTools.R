@@ -5,6 +5,7 @@
 #'
 #' @param v a character expression giving the full variable name
 #' @param x the data frame where to check
+#' @param val a vector of permissible values for the variable
 #' @param verb a logical flag indicating whether to issue a warning if the test
 #'        fails (default \code{TRUE})
 #'
@@ -68,4 +69,26 @@ varIsSequential = function(v, x, verb=TRUE)
 	ret
 }
 
+#' @rdname var-check-tools
+varExistsNoMissing = function(v, x, verb=TRUE)
+{
+	test = varExists(v, x, verb=verb)
+	if (test) {
+		test = test & varNoMissing(v, x, verb=verb)
+	}
+	test
+}
+
+#' @rdname var-check-tools
+varValidValues = function(v, x, val, verb=TRUE)
+{
+	ret = TRUE
+	vv  = x[, v]
+	vv  = vv[!is.na(vv)]
+	if ( !all(vv %in% val) ) {
+		if (verb) warning("Variable '", v, "' has non-valid values")
+		ret = FALSE
+	}
+	ret
+}
 
