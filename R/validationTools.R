@@ -6,89 +6,85 @@
 #' @param v a character expression giving the full variable name
 #' @param x the data frame where to check
 #' @param val a vector of permissible values for the variable
-#' @param verb a logical flag indicating whether to issue a warning if the test
-#'        fails (default \code{TRUE})
 #'
-#' @return a logical value indicating whether the condition holds
+#' @return a list consisting of a logical value \code{flag} that indicates whether
+#'         or not the test was passed, and a character string \code{text} that
+#'         contains message giving information on what happened
 #'
 #' @name var-check-tools
 NULL
 
 #' @rdname var-check-tools
-varExists = function(v, x, verb=TRUE)
+varExists = function(v, x)
 {
-	ret = TRUE
+	flag = TRUE
+	text = "ok"
 	if ( !( v %in% colnames(x) ) ) {
-		if (verb) warning("Required variable '", v, "' not found")
-		ret = FALSE
+		flag = FALSE
+		text = paste("Required variable '", v, "' not found", sep="")
 	}
-	ret
+	list(flag=flag, text=text)
 }
 
 #' @rdname var-check-tools
-varNoMissing = function(v, x, verb=TRUE)
+varNoMissing = function(v, x)
 {
-	ret = TRUE
+	flag = TRUE
+	text = "ok"
 	if ( any(is.na(x[,v])) ) {
-		if (verb) warning("Variable '", v, "' has missing values")
-		ret = FALSE
+		flag = FALSE
+		text = paste("Variable '", v, "' has missing values", sep="")
 	}
-	ret
+	list(flag=flag, text=text)
 }
 
 #' @rdname var-check-tools
-varNoMissing = function(v, x, verb=TRUE)
+varNoDuplicate = function(v, x)
 {
-	ret = TRUE
-	if ( any(is.na(x[,v])) ) {
-		if (verb) warning("Variable '", v, "' has missing values")
-		ret = FALSE
-	}
-	ret
-}
-
-#' @rdname var-check-tools
-varNoDuplicate = function(v, x, verb=TRUE)
-{
-	ret = TRUE
+	flag = TRUE
+	text = "ok"
 	if ( any(duplicated(x[,v])) ) {
-		if (verb) warning("Variable '", v, "' has non-unique values")
-		ret = FALSE
+		flag = FALSE
+		text = paste("Variable '", v, "' has non-unique values", sep="")
 	}
-	ret
+	list(flag=flag, text=text)
 }
 
 #' @rdname var-check-tools
-varIsSequential = function(v, x, verb=TRUE)
+varIsSequential = function(v, x)
 {
-	ret = TRUE
+	flag = TRUE
+	text = "ok"
 	if ( !all(diff(x[,v]) == 1) ) {
-		if (verb) warning("Variable '", v, "' has not sequential")
-		ret = FALSE
+		flag = FALSE
+		text = paste("Variable '", v, "' is not sequential", sep="")
 	}
-	ret
+	list(flag=flag, text=text)
 }
 
 #' @rdname var-check-tools
-varExistsNoMissing = function(v, x, verb=TRUE)
+varExistsNoMissing = function(v, x)
 {
-	test = varExists(v, x, verb=verb)
-	if (test) {
-		test = test & varNoMissing(v, x, verb=verb)
+	test = varExists(v, x)
+	if (test$flag) {
+		test2 = varNoMissing(v, x)
+		test$flag = test$flag & test2$flag
+		test$text = c(test$text, test2$text)
 	}
 	test
 }
 
 #' @rdname var-check-tools
-varValidValues = function(v, x, val, verb=TRUE)
+varValidValues = function(v, x, val)
 {
-	ret = TRUE
+	flag = TRUE
+	text = "ok"
 	vv  = x[, v]
 	vv  = vv[!is.na(vv)]
 	if ( !all(vv %in% val) ) {
-		if (verb) warning("Variable '", v, "' has non-valid values")
-		ret = FALSE
+		flag = FALSE		
+		text = paste("Variable '", v, "' has non-valid values", sep="")
 	}
-	ret
+	list(flag=flag, text=text)
 }
 

@@ -9,8 +9,6 @@
 #'  (\code{TRUE}, the default), or whether just to test the validity
 #' @param inclVA A logical flag indicating whether to check for verbal autopsy
 #'  results in the data (default \code{TRUE}).
-#' @param verb A logical flag indicating whether to issue explicit warnings when
-#'  a deviation from the specification is found (default \code{TRUE})
 #'
 #' @return If \code{clean} is \code{TRUE}, the cleaned data frame; if \code{clean}
 #' is \code{FALSE}, a logical value idnicating whether or not \code{x} follows
@@ -20,71 +18,76 @@
 #' @seealso \code{\link{var-check-tools}}
 #' @export
 #'
-validateHDSS = function(x, clean=TRUE, inclVA=TRUE, verb=TRUE)
+validateHDSS = function(x, clean=TRUE, inclVA=TRUE)
 {
-	## Hopeful initialization
-	isGood = TRUE
+	## nitialization
+	allTests = list()
+	add = function(List, new) { List[[length(List)+1]] = new; List }
 	
 	## Check for unique non-missing sequential record identifier
-	test = varExists("RecNr", x, verb=verb)
-	if (test) {
-		test = test & varNoMissing("RecNr", x, verb=verb)
-		test = test & varNoDuplicate("RecNr", x, verb=verb)
-		test = test & varIsSequential("RecNr", x, verb=verb)
+	test = varExists("RecNr", x)
+	allTests = add(allTests, test)
+	if (test$flag) {
+		allTests = add(allTests, varNoMissing("RecNr", x) )
+		allTests = add(allTests, varNoDuplicate("RecNr", x) )
+		allTests = add(allTests, varIsSequential("RecNr", x) )
 	}
-	isGood = isGood & test
 
 	## Check for valid non-missing centre identifiers of length 5
-	test = varExistsNoMissing("CentreId", x, verb=verb)
-	if (test) {
+	test = varExistsNoMissing("CentreId", x)
+	allTests = add(allTests, test)	
+	if (test$flag) {
 		if ( any(nchar(as.character(x$CentreID)) != 5) ) {
-			test = FALSE
-			if (verb) warning("Invalid code length in variable 'CentreId'")
+			test = list(flag = FALSE, text ="Invalid code length in variable 'CentreId'")
+		} else {
+			test = list(flag = TRUE, text = "ok")
 		}
+		allTests = add(allTests, test)						
 	}
-	isGood = isGood & test
 
 	## Check for non-missing subject Ids
-	isGood = isGood & varExistsNoMissing("IndividualId", x, verb=verb)	
+	allTests = add(allTests, varExistsNoMissing("IndividualId", x) )
 
 	## Check for country identifier: present and valid
-	test = varExistsNoMissing("CountryId", x, verb=verb)	
-	if (test) {
+	test = varExistsNoMissing("CountryId", x)
+	allTests = add(allTests, test)		
+	if (test$flag) {
 		require(ISOcodes)
 		data(ISO_3166_1)
 		if ( !all(as.character(x$CountryID) %in% ISO_3166_1$Numeric) ) {
-			test = FALSE 
-			if (verb) warning("Invalid country code in variable 'CountryId'")
+			test = list(flag = FALSE, text = "Invalid country code in variable 'CountryId'")
+		} else {
+			test = list(flag = TRUE, text = "ok")
 		}
+		allTests = add(allTests, test)						
 	}
-	isGood = isGood & test
 
 	## Check for non-missing location Ids
-	isGood = isGood & varExistsNoMissing("LocationId", x, verb=verb)	
+	allTests = add(allTests, varExistsNoMissing("LocationId", x) )
 
 	## Check for non-missing date of birth
-	isGood = isGood & varExistsNoMissing("DoB", x, verb=verb)	
+	allTests = add(allTests,  varExistsNoMissing("DoB", x) )
 
 	## Check for non-missing event code from given list
-	test = varExistsNoMissing("EventCode", x, verb=verb)
-	if (test) {
-		test = test & varValidValues("EventCode", x, val=INDEPTH_eventCodes, verb=verb)
+	test = varExistsNoMissing("EventCode", x)
+	allTests = add(allTests, test)
+	if (test$flag) {
+		allTests = add(allTests, varValidValues("EventCode", x, val=INDEPTH_eventCodes) )
 	}
-	isGood = isGood & test
 
 	## Check for non-missing event date
-	isGood = isGood & varExistsNoMissing("EventDate", x, verb=verb)
+	allTests = add(allTests, varExistsNoMissing("EventDate", x) )
 
 	## Check for non-missing observation date
-	isGood = isGood & varExistsNoMissing("ObservationDate", x, verb=verb)	
+	allTests = add(allTests, varExistsNoMissing("ObservationDate", x)	)
 
 	## Check for non-missing count of events
-	isGood = isGood & varExistsNoMissing("EventCount", x, verb=verb)	
+	allTests = add(allTests, varExistsNoMissing("EventCount", x) )
 
 	## Check for non-missing event number (sequential within subject?)
-	isGood = isGood & varExistsNoMissing("EventNr", x, verb=verb)
+	allTests = add(allTests, varExistsNoMissing("EventNr", x) )
 
-	## Only if we are reuired to test for verbal autospy results
+	## Only if we are reuqired to test for verbal autospy results
 	if (inclVA) {
 
 		##isGood = isGood & varExists("
@@ -94,7 +97,17 @@ validateHDSS = function(x, clean=TRUE, inclVA=TRUE, verb=TRUE)
 
 	}
 	
-
-	if (clean) return(x) else return(isGood)
+	if (clean) {
+		return(x)
+	} else {
+		flag = all(sapply(allTests, function(x) x$flag))
+		if (flag) {
+			text = "ok"
+		} else {
+			text = unlist(sapply(allTests, function(x) if (!x$flag) x$text else NULL))
+			text = text[text != "ok"]
+		}
+		return(list(flag = flag, text = text))
+	}
 
 }
