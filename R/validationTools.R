@@ -89,10 +89,9 @@ varValidValues = function(v, x, val)
 }
 
 #' @rdname var-check-tools
-varMatchingMissing = function(v1, v2, x, val)
+varMatchingMissing = function(v1, v2, x)
 {
-	flag = TRUE
-	text = "ok"
+	flag = TRUE ; text = "ok"
 	vv1  = x[, v1]
 	vv2  = x[, v2]
 	if ( any(is.na(vv1) != is.na(vv2) ) ) {
