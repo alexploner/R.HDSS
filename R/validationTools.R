@@ -3,7 +3,7 @@
 #' These functions check for existence and properties of a specified variable
 #' name in a given data frame.
 #'
-#' @param v a character expression giving the full variable name
+#' @param v,v1,v2 a character expression giving a full variable name
 #' @param x the data frame where to check
 #' @param val a vector of permissible values for the variable
 #'
@@ -88,3 +88,16 @@ varValidValues = function(v, x, val)
 	list(flag=flag, text=text)
 }
 
+#' @rdname var-check-tools
+varMatchingMissing = function(v1, v2, x, val)
+{
+	flag = TRUE
+	text = "ok"
+	vv1  = x[, v1]
+	vv2  = x[, v2]
+	if ( any(is.na(vv1) != is.na(vv2) ) ) {
+		flag = FALSE		
+		text = paste("Variables '", v1, "' and '", v2, "' have non-matching pattern of missingness", sep="")
+	}
+	list(flag=flag, text=text)
+}
