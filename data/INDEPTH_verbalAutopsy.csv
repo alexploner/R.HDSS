@@ -66,4 +66,5 @@ Code; Label;isWHOcode;isWHOlabel;WHOcategory;mappedCode;mappedLabelLong;mappedLa
 99;Indeterminate;TRUE;FALSE;;99;Cause of death unknown;Cause of death unknown;Indeterminate;
 991;Indeterminate(had InterVA symptoms);FALSE;FALSE;;99;Cause of death unknown;Cause of death unknown;Indeterminate;
 992;Indeterminate(didnt have InterVA s;FALSE;FALSE;;99;Cause of death unknown;Cause of death unknown;Indeterminate;
+999;Indeterminate(didnt have InterVA s;FALSE;FALSE;;99;Cause of death unknown;Cause of death unknown;Indeterminate;
 XX;VA not completed;FALSE;FALSE;;99;Cause of death unknown;Cause of death unknown;Indeterminate;
