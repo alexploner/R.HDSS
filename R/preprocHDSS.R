@@ -146,4 +146,48 @@ extractVAcode = function(x)
 	comatch  = INDEPTH_verbalAutopsy$mappedCode[ndxmatch]
 	comatch
 }
+
+#' Filter out valid observations in an HDSS data set
+#'
+#' Runs a number of filters on a pre-processed data set to identify questionable
+#' events (before birth, in the future etc.)
+#'
+#' @param x the pre-processed HDSS data frame to filter
+#'
+#' @return A list with three entries:
+#' \itemize{
+#'   \item{report}{a data frame with one row per filter, describing the filtering
+#'                 step and listing the number of events removed by it}
+#'   \item{keep}{the record numbers (\code{RecNr}) of the events to be kept
+#'               after filtering}
+#'   \item{remove}{a list of vectors of record numbers, one vector per filter
+#'                 step, identifying events that are dropped in this step}
+#' }
+#'
+#' @seealso \code{\link{contenTests}}
+#' @export
+filterHDSS = function(x)
+{
+
+	## Obervation after event
+
+	## Reasonable range of event dates
+
+	## Reasonable range of ages at event
+
+	## Birth before event date	
+
+	## All mothers are female
+
+	## Event number not greater than event count
+
+	## Incorrect sex
+
+
+
+
+}
+
+
+
 	
