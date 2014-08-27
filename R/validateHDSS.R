@@ -20,7 +20,7 @@
 #'   or may not be present in a data set. The function makes some assumptions
 #'   about the presence of core variables (especially \code{EventCode}), so it
 #'   is good practive to run the data through \code{coreTests} first. \cr\cr
-#'   \code{cleanTests} tests some more assumptions about the core HDSS variables,
+#'   \code{contentTests} tests some more assumptions about the core HDSS variables,
 #'   assuming that the raw data has been suitably preprocessed using
 #'   \code{preprocHDSS}, resulting e.g. in valid date variables throughout.
 #'
@@ -171,4 +171,22 @@ vaTests = function(x)
 	list(flag = flag, text = data.frame(Message=text))
 }
 
+#' @rdname validate-HDSS
+#' @export
+contentTests = function(x)
+{
+	## Obervation after event
 
+	## Reasonable range of event dates
+
+	## Reasonable range of ages at event
+
+	## Birth before event date	
+
+	## All mothers are female
+
+	## Event number not greater than event count
+
+}
+
+	## 
