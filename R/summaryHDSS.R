@@ -19,6 +19,9 @@
 #' @export
 summarizeHDSS = function(x)
 {
+	centreId  = levels(x$CentreId)[1]
+	country   = with(INDEPTH_Centres, Country[match(centreId, Code)])
+	site      = with(INDEPTH_Centres,Site[match(centreId, Code)])
 	numEvents = nrow(x)
 	numSubj   = length(unique(x$IndividualId))
 	dateRange = range(x$EventDate, na.rm=TRUE)
@@ -27,7 +30,8 @@ summarizeHDSS = function(x)
 	numBirths = length(which(x$EventCode=="BTH"))
 	vaVars = as.vector(outer(c("Cause", "Likelihood"), 1:3, paste, sep=""))
 	hasVA     = all(vaVars %in% colnames(x))
-	list("numSubjects" = numSubj, "numEvents" = numEvents,
+	list("Code" = centreId, "Country" = country, "Site" = site,
+	      "numSubjects" = numSubj, "numEvents" = numEvents,
 	     "minDate" = dateRange[1], "maxDate" = dateRange[2],
 	     "minAge"  = ageRange[1],  "maxAge"  = ageRange[2],
 	     "numBirths" = numBirths, "numDeaths" = numDeaths,
