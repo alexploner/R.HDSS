@@ -31,3 +31,18 @@ NULL
 #'             http://www.who.int/healthinfo/statistics/verbalautopsystandards/en/
 NULL
 
+#' INDEPTH HDSS Sites
+#'
+#' An incomplete list of centres that are part of INDEPTH: the project code,
+#' country and site name.
+#'
+#' \itemize{
+#'    \item Code. The five-character code for the side used by INDEPTH.
+#'    \item Country. The name of the country where the site is located.
+#'    \item Site. The name of the site.
+#' }
+#'
+#' @format A data frame with three variables.
+#' @name INDEPTH_Centres
+#' @references http://www.indepth-ishare.org/index.php/catalog/central
+NULL
