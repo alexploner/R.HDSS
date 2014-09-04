@@ -71,7 +71,7 @@ coreVariableTests = function(x)
 }
 
 
-#' @rdname validate-HDSS
+#' @rdname varTests-HDSS
 #' @export
 vaVariableTests = function(x)
 {
