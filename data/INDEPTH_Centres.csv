@@ -1,14 +1,14 @@
-Code;Country;Site
-BF041;Burkina Faso;Ouagadougou
-ET021;Ethiopia;Gilgel Gibe
-ET031;Ethiopia;Kilite Awlaelo
-ET051;Ethiopia;Dabat
-IN021;India;Vadu
-KE031;Kenya;Nairobi
-KE041;Kenya;Mbita
-MW011;Malawi;Karonga
-TZ021;Tanzania;Magu
-VN021;Vietnam;Chililab
-ZA011;South Africa;Agincourt
-ZA031;South Africa;Africa Centre
+Code;Country;ISOcode;Site
+BF041;Burkina Faso;854;Ouagadougou
+ET021;Ethiopia;231;Gilgel Gibe
+ET031;Ethiopia;231;Kilite Awlaelo
+ET051;Ethiopia;231;Dabat
+IN021;India;356;Vadu
+KE031;Kenya;404;Nairobi
+KE041;Kenya;404;Mbita
+MW011;Malawi;454;Karonga
+TZ021;Tanzania;834;Magu
+VN021;Vietnam;704;Chililab
+ZA011;South Africa;710;Agincourt
+ZA031;South Africa;710;Africa Centre
 

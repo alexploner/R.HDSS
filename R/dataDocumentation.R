@@ -39,6 +39,7 @@ NULL
 #' \itemize{
 #'    \item Code. The five-character code for the side used by INDEPTH.
 #'    \item Country. The name of the country where the site is located.
+#'    \item ISOcode. The three-digit ISO code for the country.
 #'    \item Site. The name of the site.
 #' }
 #'
