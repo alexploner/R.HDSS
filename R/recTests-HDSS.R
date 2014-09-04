@@ -30,18 +30,38 @@
 #'
 coreRecordTests = function(x)
 {
+	## Valid country identifiers
+	ret = x %>% recTest_CorrectCodes("CountryId", INDEPTH_Centres$ISOcode)
+	ret = x %>% recTest_CorrectCodes("CentreId",  INDEPTH_Centres$Code) %>% addRecTest(ret, .)
 
-	## Obervation after event
+	## Correct sex and event codes
+	ret = x %>% recTest_CorrectCodes("Sex", c("m", "f")) %>% addRecTest(ret, .)
+	ret = x %>% recTest_CorrectCodes("EventCode", INDEPTH_eventCodes) %>% addRecTest(ret, .)
 
-	## Reasonable range of event dates
+	## Check location ID for missingness
+	ret = x %>% recTest_Missing("LocationId") %>% addRecTest(ret, .)	
+
+	## Check the dates for missingness, valid ranges
+	ret = x %>% recTest_Missing("DoB") %>% addRecTest(ret, .)
+	ret = x %>% recTest_InRange("DoB", as.Date("1890-01-01"), as.Date("2014-01-01")) %>% addRecTest(ret, .)				
+
+	ret = x %>% recTest_Missing("EventDate") %>% addRecTest(ret, .)
+	ret = x %>% recTest_InRange("EventDate", as.Date("1990-01-01"), as.Date("2014-01-01")) %>% addRecTest(ret, .)				
+
+	ret = x %>% recTest_Missing("ObservationDate") %>% addRecTest(ret, .)
+	ret = x %>% recTest_InRange("ObservationDate", as.Date("1990-01-01"), as.Date("2014-01-01")) %>% addRecTest(ret, .)				
+
+	## Check the order in which things happen
+	ret = x %>% recTest_LessOrEqual("DoB", "EventDate") %>% addRecTest(ret, .)
+	ret = x %>% recTest_LessOrEqual("EventDate", "ObservationDate") %>% addRecTest(ret, .)
 
 	## Reasonable range of ages at event
-
-	## Birth before event date	
 
 	## All mothers are female
 
 	## Event number not greater than event count
+
+	ret
 }
 
 #' @rdname recTests-HDSS

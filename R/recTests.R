@@ -5,7 +5,7 @@
 #'
 #' @param Index logical vector of test results
 #' @param Desc character expression describing the test
-#' @param x an object of class \code{recTest}
+#' @param x,y an object of class \code{recTest}
 #'
 #' @details Internally, this is a list with two entries: a logical matrix named
 #'   \code{Index} with as many rows as records and as many columsn as tests, and
@@ -16,7 +16,7 @@
 #' @return An object of class \code{recTest} (invisibly for the print-method)
 #'
 #' @name recTest-class
-#' @seealso \code{\link{recTestMissing}}
+#' @seealso \code{\link{recTest_Missing}}
 #' @export
 recTest = function(Index, Desc)
 {
@@ -35,12 +35,45 @@ recTest = function(Index, Desc)
 #' @export
 print.recTest = function(x, ...)
 {
-	tabfun = function(x) table(factor(x, level=c(TRUE, FALSE)), useNA="always")
-	ret = t(apply(x$Index, 2, tabfun))
-	ret = data.frame(Description=x$Desc, ret, check.names=FALSE)
+	ret = summary(x)
 	print(ret, ...)
 	invisible(x)
 }
+
+#' @rdname recTest-class
+#' @export
+summary.recTest = function(x, ...)
+{
+	tabfun = function(x) table(factor(x, level=c(TRUE, FALSE)), useNA="always")
+	ret = t(apply(x$Index, 2, tabfun))
+	ret = data.frame(Description=x$Desc, ret, check.names=FALSE)
+	ret
+}
+
+#' @rdname recTest-class
+#' @export
+addRecTest = function(x, y)
+{
+	if (nrow(x$Index) != nrow(y$Index)) stop("Number of records tested does not match")
+	ret = list(Index = cbind(x$Index, y$Index), Desc = c(x$Desc, y$Desc))
+	class(ret) = "recTest"
+	ret
+}
+
+#' @rdname recTest-class
+#' @export
+compressRecTest = function(x)
+{
+	keep = apply(x$Index, 2, function(x) any(!x | is.na(x)) )
+	if (!any(keep) ) {
+		warning("Cannot compress recTest: all tests passed")
+		return(x)
+	}
+	x$Index = x$Index[, keep, drop=FALSE]
+	x$Desc  = x$Desc[keep]
+	x
+}
+
 
 
 
@@ -72,79 +105,45 @@ NULL
 #' @export
 recTest_Missing = function(x, v)
 {
-	val  = matrix(!is.na(x[, v]), ncol=1)
+	val  = !is.na(x[, v])
 	desc = paste("Value not missing in '", v, "'", sep="")
 	recTest(Index = val, Desc = desc)
 }
 
-#' @rdname varTests-generic
+#' @rdname recTests-generic
+#' @param cc a vector of correct (permissible) codes for variable \code{v}
 #' @export
-varTest_NoMissing = function(x, v)
+recTest_CorrectCodes = function(x, v, cc)
 {
-	desc = "No missing values"
-	flag = sapply(x[, v, drop=FALSE], function(x) all(!is.na(x)))
-	names(flag) = NULL
-	data.frame(Test=desc, Variable=v, Pass=flag)
+	val  = x[, v] %in% cc
+	desc = paste("Correct codes in '", v, "'", sep="")
+	recTest(Index = val, Desc = desc)
 }
 
-#' @rdname varTests-generic
+#' @rdname recTests-generic
+#' @param lower,upper smallest/largest permissible value for variable \code{v}
 #' @export
-varTest_NoDuplicate = function(x, v)
+recTest_InRange = function(x, v, lower, upper)
 {
-	desc = "No duplicate values"
-	flag = sapply(x[, v, drop=FALSE], function(x) all(!duplicated(x)))
-	names(flag) = NULL
-	data.frame(Test=desc, Variable=v, Pass=flag)
+	val  = (lower <= x[, v] ) & ( x[,v] <= upper)
+	desc = paste("Valid range for '", v, "'", sep="")
+	recTest(Index = val, Desc = desc)
 }
 
-#' @rdname varTests-generic
+#' @rdname recTests-generic
+#' @param v1,v2 variable names
 #' @export
-varTest_IsSequential = function(x, v)
+recTest_LessOrEqual = function(x, v1, v2)
 {
-	desc  = "Numeric and sequential"
-	flag = sapply(x[, v, drop=FALSE], function(x) is.numeric(x) & all(diff(as.numeric(x))==1))
-	names(flag) = NULL
-	data.frame(Test=desc, Variable=v, Pass=flag)
+	val  = x[, v1] <= x[,v2]
+	desc = paste("'",v1, "' less or equal to '", v2, "'", sep="")
+	recTest(Index = val, Desc = desc)
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
-varExistsNoMissing = function(v, x)
-{
-	test = varExists(v, x)
-	if (test$flag) {
-		test2 = varNoMissing(v, x)
-		test$flag = test$flag & test2$flag
-		test$text = c(test$text, test2$text)
-	}
-	test
-}
-
-
-varValidValues = function(v, x, val)
-{
-	flag = TRUE
-	text = "ok"
-	vv  = x[, v]
-	vv  = vv[!is.na(vv)]
-	if ( !all(vv %in% val) ) {
-		flag = FALSE		
-		text = paste("Variable '", v, "' has non-valid values", sep="")
-	}
-	list(flag=flag, text=text)
-}
-
-
+## ??????
 varMatchingMissing = function(v1, v2, x)
 {
 	flag = TRUE ; text = "ok"
