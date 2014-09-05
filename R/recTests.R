@@ -5,7 +5,7 @@
 #'
 #' @param Index logical vector of test results
 #' @param Desc character expression describing the test
-#' @param x,y an object of class \code{recTest}
+#' @param x an object of class \code{recTest}
 #'
 #' @details Internally, this is a list with two entries: a logical matrix named
 #'   \code{Index} with as many rows as records and as many columsn as tests, and
@@ -50,7 +50,23 @@ summary.recTest = function(x, ...)
 	ret
 }
 
-#' @rdname recTest-class
+#' Working with record test results
+#'
+#' Functions to combine, compress and apply record test results.
+#'
+#' @param x,y,rt Objects of class \code{recTest}
+#'
+#' @return For \code{addRecTest}, a new \code{recTest} object that combines the
+#'   results from both tests. \cr\cr
+#'   For \code{compressRecTest}, a reduced \code{recTest} object that only
+#'   retains tests that failed at least once.\cr\cr
+#'   For \code{filterOnRecTest}, a subset of the original data frame passed in:
+#'   if \code{failed=FALSE}, the subset of records that passed all tests;
+#'   otherwise the subset of records that failed at least one test, augmented
+#'   by a new column \code{FailedTest} that describes which test(s) each record
+#'   failed. 
+#'
+#' @name recTest-functions
 #' @export
 addRecTest = function(x, y)
 {
@@ -60,7 +76,7 @@ addRecTest = function(x, y)
 	ret
 }
 
-#' @rdname recTest-class
+#' @rdname recTest-functions
 #' @export
 compressRecTest = function(x)
 {
@@ -74,7 +90,21 @@ compressRecTest = function(x)
 	x
 }
 
-
+#' @rdname recTest-functions
+#' @param data the data frame for which the record tests were performed
+#' @export
+filterOnRecTest = function(data, rt, failed=FALSE)
+{
+	if ( nrow(data) != nrow(rt$Index) ) stop("Cannot filter x: different number of records from rt")
+	ff = apply(rt$Index, 1, function(x) all(x | is.na(x)) )
+	if (failed) { ff = !ff }
+	data = data[ff,]
+	if (failed) {
+		fail = apply(rt$Index[ff,], 1, function(x) paste(rt$Desc[!x & !is.na(x)], collapse="; "))
+		data = cbind(data, FailedTest=fail)
+	}
+	data
+}	
 
 
 #' Tools for checking records in a data frame

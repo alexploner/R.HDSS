@@ -53,11 +53,27 @@ coreRecordTests = function(x)
 
 	## Check the order in which things happen
 	ret = x %>% recTest_LessOrEqual("DoB", "EventDate") %>% addRecTest(ret, .)
-	ret = x %>% recTest_LessOrEqual("EventDate", "ObservationDate") %>% addRecTest(ret, .)
 
-	## Reasonable range of ages at event
+	## For event OBE, observation data is generally before event date (last visit before censoring)
+	## While doubtful, we'll play along for now
+	tt = x %>% recTest_LessOrEqual("EventDate", "ObservationDate")
+	## We set all results for OBE to NA
+	tt$Index[x$EventCode=="OBE"] = NA
+	tt$Desc = paste("No OBE only: ", tt$Desc, sep="")
+	ret = addRecTest(ret, tt)
 
-	## All mothers are female
+	## All mothers are female, registered
+	isBirth = x$EventCode == "BTH"
+	hasMom = !is.na(x$MotherId)
+	ndx = match(x$MotherId, unique(x$IndividualId))
+	registeredMom = !is.na(ndx)
+	femMom = x$Sex[ndx] == "f"
+	Index = hasMom & registeredMom & femMom
+	Index[!isBirth] = NA
+	Desc = "BTH only: has registered and female mother"
+	ret = addRecTest(ret, recTest(Index, Desc))	
+
+	
 
 	## Event number not greater than event count
 
