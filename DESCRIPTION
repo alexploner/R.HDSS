@@ -12,5 +12,7 @@ Description: The INDEPTH project collects data in numerous health and
 URL: http://www.indepth-network.org/
 License: GPL (>=2)
 LazyData: true
-Depends:
+Depends: 
     dplyr
+Suggests: knitr
+VignetteBuilder: knitr

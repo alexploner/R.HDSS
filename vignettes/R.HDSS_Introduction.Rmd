@@ -1,0 +1,69 @@
+---
+title: "Introduction to R.HDSS"
+author: "Alexander Ploner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+## Background
+
+Sankoh & Byass (2012) have described a standardized data format for storing and sharing data collected in health and demographic surveillance system (HDSS) sites collaborating in the International Network for the Demographic Evaluation of Populations and their Health (INDEPTH) Network. THe package `R.HDSS` offers tools for working with data in this format using the R statistical software language: currently, data files can be read into R, tested for their validity and checked for quality and consistence.
+
+## Reading in data
+
+HDSS data is distributed in form of comma-separated text files (CSV). Below, we read in an artificially generated example data file that is included in the package:
+```{r read}
+file = system.file("extdata/testHDSS.csv", package="R.HDSS")
+rawdata = readRawHDSS(file)
+```
+
+The top six lines of the data just read-in show the format of the raw HDSS data:
+```{r show}
+head(rawdata)
+```
+
+## Checking for validity
+
+In the first step, we test whether the data we have just read in fulfills the formal criteria for an HDSS data file, as outlined in S & B (2012). We check whether the required columns are present comply with some minimal requirements:
+```{r test1}
+coreVariableTests(rawdata)
+```
+In this case, we see that
+
+* all the required variables are part of the data set,
+* the unique record identifier `RecNr` is a numerical variable with sequential entries and no missing values,
+* country- and site identifiers are non-missing and constant across the data set.
+
+The only test that the data failed to pass was for the variable `ObservationDate`, where some missing values were found. We can conclude that the data we have just read in is a valid HDSS file, though possibly with some complications (as can be expected from real or realistic data).
+
+## Preprocessing the raw data
+
+Up to this point, we have not modified the data at all. For our next step, however, we need to be able to make some assumptions about the content of the different variables. This requires converting (or attempting to convert) all date variables into a standard R date format (note that S & B do not specifiy an explicit date format in their paper, so date notation can vary considerably between data files, depending on country settings of the operating system, software used and preferences).
+
+```{r preproc}
+testdata = preprocHDSS(rawdata)
+head(testdata)
+```
+
+Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood. Below, we see that for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic.
+```{r preproc2}
+class(rawdata$DoB)
+class(testdata$DoB)
+```
+
+## Quality testing
+
+We can now check the content of the preprocessed data.
+```{r test2}
+coreVariableTests(testdata)
+```
+
+Transitions
+
+Patterns
+
+
