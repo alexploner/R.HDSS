@@ -15,11 +15,13 @@
 #' }
 #'
 #' @param x a data frame with raw HDSS data
+#' @param checkVA A logical flag indicating whether to test for the presence and
+#' validity of verbal autopsy data. 
 #'
 #' @return A data frame with modified columns.
 #' @seealso \code{\link{readRawHDSS}} \code{\link{coreTests}}
 #' @export
-preprocHDSS = function(x)
+preprocHDSS = function(x, checkVA=FALSE)
 {
 	## Dates
 	datevars = c("DoB", "EventDate", "ObservationDate")
@@ -34,26 +36,31 @@ preprocHDSS = function(x)
 	if ( !("Sex" %in% colnames(x)) ) {
 		stop("No variable 'Sex' in data frame 'x'")
 	}
-	x$Sex = factor(x$Sex, levels=1:2, labels=c("m", "f"))
-
-	## Unblank COD
-	cvars = paste("Cause", 1:3, sep="")
-	lvars = paste("Likelihood", 1:3, sep="")
-	if ( !all(c(cvars, lvars) %in% colnames(x)) ) {
-		warning("Not all verbal autopsy variables in data frame 'x'")
+	if ( !is.factor(x$Sex) ) {
+		x$Sex = factor(x$Sex, levels=1:2, labels=c("m", "f"))
 	} else {
-		for (v in c(cvars, lvars)) {
-			ndx = as.character(x[, v]) == "" & !is.na(x[, v])
-			x[ndx, v] = NA
-		}
+		x$Sex = factor(x$Sex, levels=c("m", "f"))
 	}
 
-	## Match the causes of death to the approved ones
-	if ( !all(cvars %in% colnames(x)) ) {
-		warning("Not all cause-of-death variables in data frame 'x'")
-	} else {
-		for (v in cvars) {
-			x[ , v] = extractVAcode(x[, v])
+	## Unblank COD
+	if (checkVA) {
+		cvars = paste("Cause", 1:3, sep="")
+		lvars = paste("Likelihood", 1:3, sep="")
+		if ( !all(c(cvars, lvars) %in% colnames(x)) ) {
+			warning("Not all verbal autopsy variables in data frame 'x'")
+		} else {
+			for (v in c(cvars, lvars)) {
+				ndx = as.character(x[, v]) == "" & !is.na(x[, v])
+				x[ndx, v] = NA
+			}
+		}
+		## Match the causes of death to the approved ones
+		if ( !all(cvars %in% colnames(x)) ) {
+			warning("Not all cause-of-death variables in data frame 'x'")
+		} else {
+			for (v in cvars) {
+				x[ , v] = extractVAcode(x[, v])
+			}
 		}
 	}
 
