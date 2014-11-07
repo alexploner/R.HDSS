@@ -115,9 +115,57 @@ testdata2 = filter(testdata, !(IndividualId %in% c(87, 3076)) )
 ```
 Note that the filtering here is very straightforward, because neither of the individuals had a delivery-event: in that case, we would need to decide how to deal with the birth events(s) that would have been (figuratively) orphaned by eliminating the mother from the data set.
 
-## Trajectories and event patterns
+## Events, event patterns and transitions
 
-## Transitions
+With a few exceptions, the diagnostics above are based on dates and comparison of dates. However, just looking at the frequency and sequence of events (as indicated by the event codes) can be highly informative. We'll demonstrate with the slighlty revised test data below.
+
+Let's start with a simple frequency distribution of events:
+```{r freq_events}
+table(testdata2$EventCode)
+```
+We find
+
+1. $n=9998$ closing events (`OBE`), indicating that each individual in the data set has a closing event, as required by the HDSS specification;
+
+2. slightly more immigration into the study (`IMG`, $n=2127$) than emigration from the study (`OMG`, $n=2005$);
+
+3. a strong overhand of births (`BTH`, $n=521$) over deaths (`DTH`, $n=145$);
+
+4. as noted before, perfect agreement between the number of births (`BTH`) and deliveries (`DLV`), which is an artefact due to the synthetic nature of the data; however, this could be informative regarding unexpcted numbers of multiple births and/or still births;
+
+5. non-matching numbers of internal out- and in-migration (`EXT`, $n=718$, and  `ENT`, $n=686$); by specification, these are two aspects of the same event, and should always appear matched, so apparently, the (fictitious) data collectors in this situation were not able to trace all cahnges of residence successfully.
+
+Let's continue with looking at the frequencies of first/last events for each individual:
+```{r freq_first_last}
+table(firstEvents(testdata2))
+table(lastEvents(testdata2))
+```
+As suggested above, each individual has the required `OBE` event at the end of their event sequence, dating the end of follow-up for the subject. In the same manner, the birth-, enumeration- and immigration events are valid entry events as per specification, though the seven deliveries (`DLV`) are not.
+
+Finally, we can look at the transitions between event states as follows:
+```{r trans1}
+trans = getTransitions(testdata2)
+```
+This both counts the number of times any possible event code is followed by any other possible event code, and sums the total person time that is spent between the two events (in days). Let's look at the counts first: here, the rows indicate the first (or source-) event, and the columns the second (or sink-) event.
+```{r trans_counts}
+trans$counts
+```
+
+(interpretation)
+
+These are the aggregated number of times elapsing between states:
+```{r trans_deltaT}
+trans$deltaT
+```
+
+(interpretation)
+
+We can use this to calculate average time between events, e.g. between birth into the study and death:
+```{r trans_avetime}
+with(trans, deltaT["BTH", "DTH"]/counts["BTH", "DTH"])
+```
+indicating that average age at death for the children that were born into the cohort and died was ca. 37 days.
+
 
 
 
