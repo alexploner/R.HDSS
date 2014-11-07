@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r init, include=FALSE}
-options(width=120)
+options(width=100)
 ```
 
 ## Background
@@ -54,17 +54,71 @@ testdata = preprocHDSS(rawdata)
 str(testdata)
 ```
 
-Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood: for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic, and simialr for the other date variables.
+Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood: for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic, and similar for the other date variables.
 
 ## Quality testing
 
-We can now check the content of the preprocessed data.
+We can now check the content of the preprocessed data. Below, we see the result of applying a number of tests to each record in the data set; for each test, the number of `TRUE` (test passed), `FALSE` (test failed) and `NA` (test not applicable) results is listed:
 ```{r test2}
 coreRecordTests(testdata)
 ```
+Let's go through the tests:
 
-Transitions
+1. Correct codes in `CountryId`/`CentreId`: these are checked against a (currently incomplete) list of INDEPTH participating sites, see `?INDEPTH_Centres`. Our synthetic test data lists country as `testCountry` and site as `testCentre` and therefore fails these tests.
 
-Patterns
+2. Correct codes for `Sex`: should be `m`/`f`for male/female, the test data passes.
+
+3. Correct codes for `EventCodes`: checks the reported event codes against the pre-defined ones in `INDEPTH_eventCodes`.
+
+4. Values not missing in `LocationId` and `DoB`: all events in the test data are reported with a correct identifier and recognizable date, respectively.
+
+5. Valid range for `DoB`: we keep an eye out for unexpectedly early or late birth dates that either indicate excpetional old age or birth after the end of the study period. By default, we look for births fate the last closing event (coded `OBE`) or indicating an age of greater 105 years during any time of the stuyd period, though this can be modified, see `? coreRecordTests`. For our test data, all records pass the default range tests.
+
+6. Missing values and valid range for `EventDate`: all events should be dated and fall into the study period. By default, the stuyd period is between the earliest non-missing event date of all entry events (enumeration, birth and immigration, coded `ENU`, `BTH` and `IMG`) and the last non-missing closing event date (`OBE`, see above). For our test data, we see that two records fail this test.
+
+7. Missing values and valid range for `ObservationDate`: these are checked against an extended stuyd period, i.e. observation dates that fall not too far behind the study end are still accepted as valid; by default, this grace period is half a year, but it can be varied by the user, see `?coreRecoredTests`. For the test data, we see fairly large number of missing values, as well as an even larger number of out-of-range values, even with the grace period, indicating that the quality of the observation dates is lower than for the other date variables.
+
+8. As a minimal test for consistency, we check whether recorded events fall after the birth date of the subject; here, we find four exceptions.
+
+9. As a similar consistency test, we check whether the observation date falls after the date of the observed event. We limit this check to non-closing (i.e. non-`OBE`) events, as these fail the check notoriously and by construction: when closing a cohort, as a rule the last observation date prior to closing is pulled forward, leading to observation before the fact. As we can seen in the test data, even when we exclude the closing events, we find a reasonably large number of observation dates preceding the event date.
+
+10. Finally, we test whether all delivery events (coded `DLV`) are linked to female subjects, and whether each birth event (coded `BTH`) is linked to an existing delivery event (the latter is required, as only births to female subjects already participating in the study should be registered). For our test data, all births and deliveries pass these tests (note that for out simple test data, the number of births and deliveries match exactly, as we have no still-births and no multiple births).
+
+## Investigating quality issues
+
+We have seen a number of quality issues with the pre-processed data in the previous section. We can actually take the output of the testing routine `coreRecordTests` to investigate more closely the records that failed some or all of the tests.
+```{r show_recordTests}
+rt = coreRecordTests(testdata)
+str(rt)
+```
+As shown above, the test result is a list consisting of two items: `Index`, a logical matrix with as many rows as records in the data and as many columns as tests performed (`r ncol(rt$Index)` to be precise), and `Description`, a vector of strings describing the nature of the test. Now if we want to look at the two records that event dates out of range, as seen above, we note that this is the 9-th test in the list. Then we can use `dplyr` to extract the corresponding records:
+```{r show_test9}
+require(dplyr)
+filter(testdata, !rt$Index[,9]) %>% select(RecNr:EventDate)
+```
+We find that there are two `ENT`-events with very early dates: given that the earliest date for an entry vent in the rest of the data is in October 2004, and given that `ENT` indicates a in-migration event internal to the site are and should always be paired with with corresponding out-migration event `EXT`. we want to have a closer look at the records of these two individuals:
+```{r showTest_bg}
+## Start of study
+filter(testdata, EventCode %in% c("ENU", "IMG", "BTH")) %>% summarise(min(EventDate))
+## All records for the individuals
+filter(testdata, IndividualId %in% c(87, 3076)) %>% select(IndividualId:ObservationDate)
+```
+It appears that the two `ENT`-events out of range were coded incorrectly, possibly at data entry or -processing. We now might decide to either
+
+* ignore the issue and to continue with the data as-is,
+* impute plausible event dates for the out-of-range events, and to continue with the modifed data,
+* remove the two subjects from the data set and further analysis.
+
+All of these are in principle valid approaches, depending on availability of background information, goals of the analysis and other circumstances. Here, we choose to eliminate subjects from the data, not because we feel that this is an especially suitable default behaviour, but because we want to demonstrate how we can manipulate an HDSS data set:
+```{r delete}
+testdata2 = filter(testdata, !(IndividualId %in% c(87, 3076)) )
+```
+Note that the filtering here is very straightforward, because neither of the individuals had a delivery-event: in that case, we would need to decide how to deal with the birth events(s) that would have been (figuratively) orphaned by eliminating the mother from the data set.
+
+## Trajectories and event patterns
+
+## Transitions
+
+
 
 
