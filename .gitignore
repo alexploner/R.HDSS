@@ -1,3 +1,7 @@
 man/*.Rd
 NAMESPACE
 inst/doc
+vignettes/*.R
+vignettes/*.html
+vignettes/*.pdf
+

@@ -9,6 +9,10 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
+```{r init, include=FALSE}
+options(width=120)
+```
+
 ## Background
 
 Sankoh & Byass (2012) have described a standardized data format for storing and sharing data collected in health and demographic surveillance system (HDSS) sites collaborating in the International Network for the Demographic Evaluation of Populations and their Health (INDEPTH) Network. THe package `R.HDSS` offers tools for working with data in this format using the R statistical software language: currently, data files can be read into R, tested for their validity and checked for quality and consistence.
@@ -17,13 +21,14 @@ Sankoh & Byass (2012) have described a standardized data format for storing and 
 
 HDSS data is distributed in form of comma-separated text files (CSV). Below, we read in an artificially generated example data file that is included in the package:
 ```{r read}
+require(R.HDSS)
 file = system.file("extdata/testHDSS.csv", package="R.HDSS")
 rawdata = readRawHDSS(file)
 ```
 
-The top six lines of the data just read-in show the format of the raw HDSS data:
+This is the structure of the raw data read into R:
 ```{r show}
-head(rawdata)
+str(rawdata)
 ```
 
 ## Checking for validity
@@ -46,20 +51,16 @@ Up to this point, we have not modified the data at all. For our next step, howev
 
 ```{r preproc}
 testdata = preprocHDSS(rawdata)
-head(testdata)
+str(testdata)
 ```
 
-Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood. Below, we see that for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic.
-```{r preproc2}
-class(rawdata$DoB)
-class(testdata$DoB)
-```
+Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood: for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic, and simialr for the other date variables.
 
 ## Quality testing
 
 We can now check the content of the preprocessed data.
 ```{r test2}
-coreVariableTests(testdata)
+coreRecordTests(testdata)
 ```
 
 Transitions
