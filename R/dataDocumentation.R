@@ -47,3 +47,14 @@ NULL
 #' @name INDEPTH_Centres
 #' @references http://www.indepth-ishare.org/index.php/catalog/central
 NULL
+
+#' Permissible event sequences for HDSS data
+#'
+#' A logical matrix indicating which events can logically follow each other
+#' in an individual's event history; from-events are indexed by row, to-events
+#' by column.
+#'
+#' @format A logical matrix with as many rows/columns as events in HDSS data
+#' @name INDEPTH_EventSeq
+NULL
+
