@@ -1,3 +1,29 @@
+#' Summary of pre-processed HDSS data
+#'
+#' @param x A pre-processed HDSS data file, as returned by
+#'          \code{\link{preprocHDSS}}
+#'
+#' @return A data frame with key information as columns
+#'
+#' @export
+summary.HDSSdata = function(x)
+{
+	require(dplyr)
+	country <- x %>% slice(1) %>% semi_join(INDEPTH_Centres, ., by=c("ISOcode"="CountryId")) %>% extract2("Country") %>% unique()
+	## To avoid stupid warning message
+	## Still warning if x$CentreId has unknown code
+	levs = unique(c(levels(INDEPTH_Centres$Code), levels(x$CentreId)))
+	levels(x$CentreId) = levs
+	site    <- x %>% slice(1) %>% semi_join(INDEPTH_Centres, ., by=c("Code"="CentreId")) %>% extract2("Site")	
+	numrec  = nrow(x)
+	numsub  = length(unique(x$IndividualId))
+	i2d = function(i) as.Date(i, origin="1970-01-01")	
+	mindate = i2d(min(x$EventDate))
+	maxdate = i2d(max(x$EventDate))
+	ret = list(Country = country, Site=site, "Individuals"=numsub, "Events"=numrec, "Begin"=mindate, "End"=maxdate)
+	as.data.frame(ret, optional=TRUE)
+}
+
 #' Summarize a pre-processed HDSS data set
 #'
 #' Summarize key parameters of a pre-processed HDSS data set.
