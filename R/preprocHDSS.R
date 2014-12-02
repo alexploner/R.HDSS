@@ -64,6 +64,7 @@ preprocHDSS = function(x, checkVA=FALSE)
 		}
 	}
 
+	class(x) = c("HDSSdata", "data.frame")
 	x
 }
 
