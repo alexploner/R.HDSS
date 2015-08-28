@@ -1,0 +1,172 @@
+---
+title: "Introduction to R.HDSS"
+author: "Alexander Ploner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r init, include=FALSE}
+options(width=100)
+```
+
+## Background
+
+Sankoh & Byass (2012) have described a standardized data format for storing and sharing data collected in health and demographic surveillance system (HDSS) sites collaborating in the International Network for the Demographic Evaluation of Populations and their Health (INDEPTH) Network. THe package `R.HDSS` offers tools for working with data in this format using the R statistical software language: currently, data files can be read into R, tested for their validity and checked for quality and consistence.
+
+## Reading in data
+
+HDSS data is distributed in form of comma-separated text files (CSV). Below, we read in an artificially generated example data file that is included in the package:
+```{r read}
+require(R.HDSS)
+file = system.file("extdata/testHDSS.csv", package="R.HDSS")
+rawdata = readRawHDSS(file)
+```
+
+This is the structure of the raw data read into R:
+```{r show}
+str(rawdata)
+```
+
+## Checking for validity
+
+In the first step, we test whether the data we have just read in fulfills the formal criteria for an HDSS data file, as outlined in S & B (2012). We check whether the required columns are present comply with some minimal requirements:
+```{r test1}
+coreVariableTests(rawdata)
+```
+In this case, we see that
+
+* all the required variables are part of the data set,
+* the unique record identifier `RecNr` is a numerical variable with sequential entries and no missing values,
+* country- and site identifiers are non-missing and constant across the data set.
+
+The only test that the data failed to pass was for the variable `ObservationDate`, where some missing values were found. We can conclude that the data we have just read in is a valid HDSS file, though possibly with some complications (as can be expected from real or realistic data).
+
+## Preprocessing the raw data
+
+Up to this point, we have not modified the data at all. For our next step, however, we need to be able to make some assumptions about the content of the different variables. This requires converting (or attempting to convert) all date variables into a standard R date format (note that S & B do not specifiy an explicit date format in their paper, so date notation can vary considerably between data files, depending on country settings of the operating system, software used and preferences).
+
+```{r preproc}
+testdata = preprocHDSS(rawdata)
+str(testdata)
+```
+
+Note that the new `testdata` looks very similar to the old `rawdata`, but some important changes have happened under the hood: for the original data, the birth date `DoB` was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic, and similar for the other date variables.
+
+## Quality testing
+
+We can now check the content of the preprocessed data. Below, we see the result of applying a number of tests to each record in the data set; for each test, the number of `TRUE` (test passed), `FALSE` (test failed) and `NA` (test not applicable) results is listed:
+```{r test2}
+coreRecordTests(testdata)
+```
+Let's go through the tests:
+
+1. Correct codes in `CountryId`/`CentreId`: these are checked against a (currently incomplete) list of INDEPTH participating sites, see `?INDEPTH_Centres`. Our synthetic test data lists country as `testCountry` and site as `testCentre` and therefore fails these tests.
+
+2. Correct codes for `Sex`: should be `m`/`f`for male/female, the test data passes.
+
+3. Correct codes for `EventCodes`: checks the reported event codes against the pre-defined ones in `INDEPTH_eventCodes`.
+
+4. Values not missing in `LocationId` and `DoB`: all events in the test data are reported with a correct identifier and recognizable date, respectively.
+
+5. Valid range for `DoB`: we keep an eye out for unexpectedly early or late birth dates that either indicate excpetional old age or birth after the end of the study period. By default, we look for births fate the last closing event (coded `OBE`) or indicating an age of greater 105 years during any time of the stuyd period, though this can be modified, see `? coreRecordTests`. For our test data, all records pass the default range tests.
+
+6. Missing values and valid range for `EventDate`: all events should be dated and fall into the study period. By default, the stuyd period is between the earliest non-missing event date of all entry events (enumeration, birth and immigration, coded `ENU`, `BTH` and `IMG`) and the last non-missing closing event date (`OBE`, see above). For our test data, we see that two records fail this test.
+
+7. Missing values and valid range for `ObservationDate`: these are checked against an extended stuyd period, i.e. observation dates that fall not too far behind the study end are still accepted as valid; by default, this grace period is half a year, but it can be varied by the user, see `?coreRecoredTests`. For the test data, we see fairly large number of missing values, as well as an even larger number of out-of-range values, even with the grace period, indicating that the quality of the observation dates is lower than for the other date variables.
+
+8. As a minimal test for consistency, we check whether recorded events fall after the birth date of the subject; here, we find four exceptions.
+
+9. As a similar consistency test, we check whether the observation date falls after the date of the observed event. We limit this check to non-closing (i.e. non-`OBE`) events, as these fail the check notoriously and by construction: when closing a cohort, as a rule the last observation date prior to closing is pulled forward, leading to observation before the fact. As we can seen in the test data, even when we exclude the closing events, we find a reasonably large number of observation dates preceding the event date.
+
+10. Finally, we test whether all delivery events (coded `DLV`) are linked to female subjects, and whether each birth event (coded `BTH`) is linked to an existing delivery event (the latter is required, as only births to female subjects already participating in the study should be registered). For our test data, all births and deliveries pass these tests (note that for out simple test data, the number of births and deliveries match exactly, as we have no still-births and no multiple births).
+
+## Investigating quality issues
+
+We have seen a number of quality issues with the pre-processed data in the previous section. We can actually take the output of the testing routine `coreRecordTests` to investigate more closely the records that failed some or all of the tests.
+```{r show_recordTests}
+rt = coreRecordTests(testdata)
+str(rt)
+```
+As shown above, the test result is a list consisting of two items: `Index`, a logical matrix with as many rows as records in the data and as many columns as tests performed (`r ncol(rt$Index)` to be precise), and `Description`, a vector of strings describing the nature of the test. Now if we want to look at the two records that event dates out of range, as seen above, we note that this is the 9-th test in the list. Then we can use `dplyr` to extract the corresponding records:
+```{r show_test9}
+require(dplyr)
+filter(testdata, !rt$Index[,9]) %>% select(RecNr:EventDate)
+```
+We find that there are two `ENT`-events with very early dates: given that the earliest date for an entry vent in the rest of the data is in October 2004, and given that `ENT` indicates a in-migration event internal to the site are and should always be paired with with corresponding out-migration event `EXT`. we want to have a closer look at the records of these two individuals:
+```{r showTest_bg}
+## Start of study
+filter(testdata, EventCode %in% c("ENU", "IMG", "BTH")) %>% summarise(min(EventDate))
+## All records for the individuals
+filter(testdata, IndividualId %in% c(87, 3076)) %>% select(IndividualId:ObservationDate)
+```
+It appears that the two `ENT`-events out of range were coded incorrectly, possibly at data entry or -processing. We now might decide to either
+
+* ignore the issue and to continue with the data as-is,
+* impute plausible event dates for the out-of-range events, and to continue with the modifed data,
+* remove the two subjects from the data set and further analysis.
+
+All of these are in principle valid approaches, depending on availability of background information, goals of the analysis and other circumstances. Here, we choose to eliminate subjects from the data, not because we feel that this is an especially suitable default behaviour, but because we want to demonstrate how we can manipulate an HDSS data set:
+```{r delete}
+testdata2 = filter(testdata, !(IndividualId %in% c(87, 3076)) )
+```
+Note that the filtering here is very straightforward, because neither of the individuals had a delivery-event: in that case, we would need to decide how to deal with the birth events(s) that would have been (figuratively) orphaned by eliminating the mother from the data set.
+
+## Events, event patterns and transitions
+
+With a few exceptions, the diagnostics above are based on dates and comparison of dates. However, just looking at the frequency and sequence of events (as indicated by the event codes) can be highly informative. We'll demonstrate with the slighlty revised test data below.
+
+Let's start with a simple frequency distribution of events:
+```{r freq_events}
+table(testdata2$EventCode)
+```
+We find
+
+1. $n=9998$ closing events (`OBE`), indicating that each individual in the data set has a closing event, as required by the HDSS specification;
+
+2. slightly more immigration into the study (`IMG`, $n=2127$) than emigration from the study (`OMG`, $n=2005$);
+
+3. a strong overhand of births (`BTH`, $n=521$) over deaths (`DTH`, $n=145$);
+
+4. as noted before, perfect agreement between the number of births (`BTH`) and deliveries (`DLV`), which is an artefact due to the synthetic nature of the data; however, this could be informative regarding unexpcted numbers of multiple births and/or still births;
+
+5. non-matching numbers of internal out- and in-migration (`EXT`, $n=718$, and  `ENT`, $n=686$); by specification, these are two aspects of the same event, and should always appear matched, so apparently, the (fictitious) data collectors in this situation were not able to trace all cahnges of residence successfully.
+
+Let's continue with looking at the frequencies of first/last events for each individual:
+```{r freq_first_last}
+table(firstEvents(testdata2))
+table(lastEvents(testdata2))
+```
+As suggested above, each individual has the required `OBE` event at the end of their event sequence, dating the end of follow-up for the subject. In the same manner, the birth-, enumeration- and immigration events are valid entry events as per specification, though the seven deliveries (`DLV`) are not.
+
+Finally, we can look at the transitions between event states as follows:
+```{r trans1}
+trans = getTransitions(testdata2)
+```
+This both counts the number of times any possible event code is followed by any other possible event code, and sums the total person time that is spent between the two events (in days). Let's look at the counts first: here, the rows indicate the first (or source-) event, and the columns the second (or sink-) event.
+```{r trans_counts}
+trans$counts
+```
+
+(interpretation)
+
+These are the aggregated number of times elapsing between states:
+```{r trans_deltaT}
+trans$deltaT
+```
+
+(interpretation)
+
+We can use this to calculate average time between events, e.g. between birth into the study and death:
+```{r trans_avetime}
+with(trans, deltaT["BTH", "DTH"]/counts["BTH", "DTH"])
+```
+indicating that average age at death for the children that were born into the cohort and died was ca. 37 days.
+
+
+
+
+

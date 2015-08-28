@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Alexander Ploner" />
+
+<meta name="date" content="2014-11-07" />
+
+<title>Introduction to R.HDSS</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%7D%0Apre%20%7B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">Introduction to R.HDSS</h1>
+<h4 class="author"><em>Alexander Ploner</em></h4>
+<h4 class="date"><em>2014-11-07</em></h4>
+</div>
+
+
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p>Sankoh &amp; Byass (2012) have described a standardized data format for storing and sharing data collected in health and demographic surveillance system (HDSS) sites collaborating in the International Network for the Demographic Evaluation of Populations and their Health (INDEPTH) Network. THe package <code>R.HDSS</code> offers tools for working with data in this format using the R statistical software language: currently, data files can be read into R, tested for their validity and checked for quality and consistence.</p>
+</div>
+<div id="reading-in-data" class="section level2">
+<h2>Reading in data</h2>
+<p>HDSS data is distributed in form of comma-separated text files (CSV). Below, we read in an artificially generated example data file that is included in the package:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(R.HDSS)
+file =<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata/testHDSS.csv&quot;</span>, <span class="dt">package=</span><span class="st">&quot;R.HDSS&quot;</span>)
+rawdata =<span class="st"> </span><span class="kw">readRawHDSS</span>(file)</code></pre>
+<pre><code>## Reading C:/Program Files/R/R-3.1.1/library/R.HDSS/extdata/testHDSS.csv...</code></pre>
+<p>This is the structure of the raw data read into R:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(rawdata)</code></pre>
+<pre><code>## 'data.frame':    24339 obs. of  14 variables:
+##  $ RecNr          : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ CountryId      : Factor w/ 1 level &quot;testCountry&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ CentreId       : Factor w/ 1 level &quot;testCentre&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ IndividualId   : int  1 1 2 2 3 3 4 4 4 5 ...
+##  $ Sex            : Factor w/ 2 levels &quot;f&quot;,&quot;m&quot;: 1 1 2 2 1 1 1 1 1 1 ...
+##  $ DoB            : Factor w/ 6618 levels &quot;1914-09-06&quot;,&quot;1914-09-30&quot;,..: 370 370 5528 5528 1865 1865 3938 3938 3938 647 ...
+##  $ EventCount     : int  2 2 2 2 2 2 3 3 3 2 ...
+##  $ EventNr        : int  1 2 1 2 1 2 1 2 3 1 ...
+##  $ EventCode      : Factor w/ 10 levels &quot;BTH&quot;,&quot;DLV&quot;,&quot;DTH&quot;,..: 5 8 5 8 7 8 5 2 8 5 ...
+##  $ EventDate      : Factor w/ 1276 levels &quot;1987-10-01&quot;,&quot;2002-11-27&quot;,..: 321 1224 205 1224 1132 1172 63 526 1260 297 ...
+##  $ ObservationDate: Factor w/ 4175 levels &quot;1792-10-11&quot;,&quot;1792-10-22&quot;,..: 3069 3730 2028 721 3052 3757 1862 2479 3179 2465 ...
+##  $ LocationId     : int  916 916 10766 10766 8945 1994 4366 4366 4366 3311 ...
+##  $ MotherId       : int  NA NA NA NA NA NA NA 4 NA NA ...
+##  $ DeliveryId     : int  NA NA NA NA NA NA NA 228 NA NA ...</code></pre>
+</div>
+<div id="checking-for-validity" class="section level2">
+<h2>Checking for validity</h2>
+<p>In the first step, we test whether the data we have just read in fulfills the formal criteria for an HDSS data file, as outlined in S &amp; B (2012). We check whether the required columns are present comply with some minimal requirements:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coreVariableTests</span>(rawdata)</code></pre>
+<pre><code>##                      Test        Variable  Pass
+## 1         Variable exists           RecNr  TRUE
+## 2       No missing values           RecNr  TRUE
+## 3     No duplicate values           RecNr  TRUE
+## 4  Numeric and sequential           RecNr  TRUE
+## 5         Variable exists       CountryId  TRUE
+## 6       No missing values       CountryId  TRUE
+## 7          Constant label       CountryId  TRUE
+## 8         Variable exists        CentreId  TRUE
+## 9       No missing values        CentreId  TRUE
+## 10         Constant label        CentreId  TRUE
+## 11        Variable exists    IndividualId  TRUE
+## 12      No missing values    IndividualId  TRUE
+## 13        Variable exists             Sex  TRUE
+## 14      No missing values             Sex  TRUE
+## 15        Variable exists      LocationId  TRUE
+## 16      No missing values      LocationId  TRUE
+## 17        Variable exists             DoB  TRUE
+## 18      No missing values             DoB  TRUE
+## 19        Variable exists       EventCode  TRUE
+## 20      No missing values       EventCode  TRUE
+## 21        Variable exists       EventDate  TRUE
+## 22      No missing values       EventDate  TRUE
+## 23        Variable exists ObservationDate  TRUE
+## 24      No missing values ObservationDate FALSE
+## 25        Variable exists      EventCount  TRUE
+## 26      No missing values      EventCount  TRUE
+## 27        Variable exists         EventNr  TRUE
+## 28      No missing values         EventNr  TRUE</code></pre>
+<p>In this case, we see that</p>
+<ul>
+<li>all the required variables are part of the data set,</li>
+<li>the unique record identifier <code>RecNr</code> is a numerical variable with sequential entries and no missing values,</li>
+<li>country- and site identifiers are non-missing and constant across the data set.</li>
+</ul>
+<p>The only test that the data failed to pass was for the variable <code>ObservationDate</code>, where some missing values were found. We can conclude that the data we have just read in is a valid HDSS file, though possibly with some complications (as can be expected from real or realistic data).</p>
+</div>
+<div id="preprocessing-the-raw-data" class="section level2">
+<h2>Preprocessing the raw data</h2>
+<p>Up to this point, we have not modified the data at all. For our next step, however, we need to be able to make some assumptions about the content of the different variables. This requires converting (or attempting to convert) all date variables into a standard R date format (note that S &amp; B do not specifiy an explicit date format in their paper, so date notation can vary considerably between data files, depending on country settings of the operating system, software used and preferences).</p>
+<pre class="sourceCode r"><code class="sourceCode r">testdata =<span class="st"> </span><span class="kw">preprocHDSS</span>(rawdata)
+<span class="kw">str</span>(testdata)</code></pre>
+<pre><code>## 'data.frame':    24339 obs. of  14 variables:
+##  $ RecNr          : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ CountryId      : Factor w/ 1 level &quot;testCountry&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ CentreId       : Factor w/ 1 level &quot;testCentre&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ IndividualId   : int  1 1 2 2 3 3 4 4 4 5 ...
+##  $ Sex            : Factor w/ 2 levels &quot;m&quot;,&quot;f&quot;: 2 2 1 1 2 2 2 2 2 2 ...
+##  $ DoB            : Date, format: &quot;1946-06-24&quot; &quot;1946-06-24&quot; &quot;2001-12-02&quot; ...
+##  $ EventCount     : int  2 2 2 2 2 2 3 3 3 2 ...
+##  $ EventNr        : int  1 2 1 2 1 2 1 2 3 1 ...
+##  $ EventCode      : Factor w/ 10 levels &quot;BTH&quot;,&quot;DLV&quot;,&quot;DTH&quot;,..: 5 8 5 8 7 8 5 2 8 5 ...
+##  $ EventDate      : Date, format: &quot;2005-08-17&quot; &quot;2008-02-07&quot; &quot;2005-04-23&quot; ...
+##  $ ObservationDate: Date, format: &quot;2007-11-24&quot; &quot;2009-09-20&quot; &quot;2005-01-16&quot; ...
+##  $ LocationId     : int  916 916 10766 10766 8945 1994 4366 4366 4366 3311 ...
+##  $ MotherId       : int  NA NA NA NA NA NA NA 4 NA NA ...
+##  $ DeliveryId     : int  NA NA NA NA NA NA NA 228 NA NA ...</code></pre>
+<p>Note that the new <code>testdata</code> looks very similar to the old <code>rawdata</code>, but some important changes have happened under the hood: for the original data, the birth date <code>DoB</code> was a categorical (factor) variable, whereas for the preprocessed data, it is now a valid date format, with which we can do comparisons and arithmetic, and similar for the other date variables.</p>
+</div>
+<div id="quality-testing" class="section level2">
+<h2>Quality testing</h2>
+<p>We can now check the content of the preprocessed data. Below, we see the result of applying a number of tests to each record in the data set; for each test, the number of <code>TRUE</code> (test passed), <code>FALSE</code> (test failed) and <code>NA</code> (test not applicable) results is listed:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">coreRecordTests</span>(testdata)</code></pre>
+<pre><code>##                                                    Description  TRUE FALSE    NA
+## 1                                 Correct codes in 'CountryId'     0 24339     0
+## 2                                  Correct codes in 'CentreId'     0 24339     0
+## 3                                       Correct codes in 'Sex' 24339     0     0
+## 4                                 Correct codes in 'EventCode' 24339     0     0
+## 5                            Value not missing in 'LocationId' 24339     0     0
+## 6                                   Value not missing in 'DoB' 24339     0     0
+## 7                                        Valid range for 'DoB' 24339     0     0
+## 8                             Value not missing in 'EventDate' 24339     0     0
+## 9                                  Valid range for 'EventDate' 24337     2     0
+## 10                      Value not missing in 'ObservationDate' 22972  1367     0
+## 11                           Valid range for 'ObservationDate' 15561  7411  1367
+## 12                          'DoB' less or equal to 'EventDate' 24335     4     0
+## 13 No OBE only: 'EventDate' less or equal to 'ObservationDate' 10902  2690 10747
+## 14                           Delivery for female subjects only   521     0 23818
+## 15                        Birth event linked to valid delivery   521     0 23818</code></pre>
+<p>Let’s go through the tests:</p>
+<ol style="list-style-type: decimal">
+<li><p>Correct codes in <code>CountryId</code>/<code>CentreId</code>: these are checked against a (currently incomplete) list of INDEPTH participating sites, see <code>?INDEPTH_Centres</code>. Our synthetic test data lists country as <code>testCountry</code> and site as <code>testCentre</code> and therefore fails these tests.</p></li>
+<li><p>Correct codes for <code>Sex</code>: should be <code>m</code>/<code>f</code>for male/female, the test data passes.</p></li>
+<li><p>Correct codes for <code>EventCodes</code>: checks the reported event codes against the pre-defined ones in <code>INDEPTH_eventCodes</code>.</p></li>
+<li><p>Values not missing in <code>LocationId</code> and <code>DoB</code>: all events in the test data are reported with a correct identifier and recognizable date, respectively.</p></li>
+<li><p>Valid range for <code>DoB</code>: we keep an eye out for unexpectedly early or late birth dates that either indicate excpetional old age or birth after the end of the study period. By default, we look for births fate the last closing event (coded <code>OBE</code>) or indicating an age of greater 105 years during any time of the stuyd period, though this can be modified, see <code>? coreRecordTests</code>. For our test data, all records pass the default range tests.</p></li>
+<li><p>Missing values and valid range for <code>EventDate</code>: all events should be dated and fall into the study period. By default, the stuyd period is between the earliest non-missing event date of all entry events (enumeration, birth and immigration, coded <code>ENU</code>, <code>BTH</code> and <code>IMG</code>) and the last non-missing closing event date (<code>OBE</code>, see above). For our test data, we see that two records fail this test.</p></li>
+<li><p>Missing values and valid range for <code>ObservationDate</code>: these are checked against an extended stuyd period, i.e. observation dates that fall not too far behind the study end are still accepted as valid; by default, this grace period is half a year, but it can be varied by the user, see <code>?coreRecoredTests</code>. For the test data, we see fairly large number of missing values, as well as an even larger number of out-of-range values, even with the grace period, indicating that the quality of the observation dates is lower than for the other date variables.</p></li>
+<li><p>As a minimal test for consistency, we check whether recorded events fall after the birth date of the subject; here, we find four exceptions.</p></li>
+<li><p>As a similar consistency test, we check whether the observation date falls after the date of the observed event. We limit this check to non-closing (i.e. non-<code>OBE</code>) events, as these fail the check notoriously and by construction: when closing a cohort, as a rule the last observation date prior to closing is pulled forward, leading to observation before the fact. As we can seen in the test data, even when we exclude the closing events, we find a reasonably large number of observation dates preceding the event date.</p></li>
+<li><p>Finally, we test whether all delivery events (coded <code>DLV</code>) are linked to female subjects, and whether each birth event (coded <code>BTH</code>) is linked to an existing delivery event (the latter is required, as only births to female subjects already participating in the study should be registered). For our test data, all births and deliveries pass these tests (note that for out simple test data, the number of births and deliveries match exactly, as we have no still-births and no multiple births).</p></li>
+</ol>
+</div>
+<div id="investigating-quality-issues" class="section level2">
+<h2>Investigating quality issues</h2>
+<p>We have seen a number of quality issues with the pre-processed data in the previous section. We can actually take the output of the testing routine <code>coreRecordTests</code> to investigate more closely the records that failed some or all of the tests.</p>
+<pre class="sourceCode r"><code class="sourceCode r">rt =<span class="st"> </span><span class="kw">coreRecordTests</span>(testdata)
+<span class="kw">str</span>(rt)</code></pre>
+<pre><code>## List of 2
+##  $ Index: logi [1:24339, 1:15] FALSE FALSE FALSE FALSE FALSE FALSE ...
+##  $ Desc : chr [1:15] &quot;Correct codes in 'CountryId'&quot; &quot;Correct codes in 'CentreId'&quot; &quot;Correct codes in 'Sex'&quot; &quot;Correct codes in 'EventCode'&quot; ...
+##  - attr(*, &quot;class&quot;)= chr &quot;recTest&quot;</code></pre>
+<p>As shown above, the test result is a list consisting of two items: <code>Index</code>, a logical matrix with as many rows as records in the data and as many columns as tests performed (15 to be precise), and <code>Description</code>, a vector of strings describing the nature of the test. Now if we want to look at the two records that event dates out of range, as seen above, we note that this is the 9-th test in the list. Then we can use <code>dplyr</code> to extract the corresponding records:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">require</span>(dplyr)
+<span class="kw">filter</span>(testdata, !rt$Index[,<span class="dv">9</span>]) %&gt;%<span class="st"> </span><span class="kw">select</span>(RecNr:EventDate)</code></pre>
+<pre><code>##   RecNr   CountryId   CentreId IndividualId Sex        DoB EventCount EventNr EventCode  EventDate
+## 1   211 testCountry testCentre           87   m 1980-12-01          4       3       ENT 2002-11-27
+## 2  7460 testCountry testCentre         3076   f 1981-01-08          6       5       ENT 1987-10-01</code></pre>
+<p>We find that there are two <code>ENT</code>-events with very early dates: given that the earliest date for an entry vent in the rest of the data is in October 2004, and given that <code>ENT</code> indicates a in-migration event internal to the site are and should always be paired with with corresponding out-migration event <code>EXT</code>. we want to have a closer look at the records of these two individuals:</p>
+<pre class="sourceCode r"><code class="sourceCode r">## Start of study
+<span class="kw">filter</span>(testdata, EventCode %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ENU&quot;</span>, <span class="st">&quot;IMG&quot;</span>, <span class="st">&quot;BTH&quot;</span>)) %&gt;%<span class="st"> </span><span class="kw">summarise</span>(<span class="kw">min</span>(EventDate))</code></pre>
+<pre><code>##   min(EventDate)
+## 1     2004-10-03</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">## All records for the individuals
+<span class="kw">filter</span>(testdata, IndividualId %in%<span class="st"> </span><span class="kw">c</span>(<span class="dv">87</span>, <span class="dv">3076</span>)) %&gt;%<span class="st"> </span><span class="kw">select</span>(IndividualId:ObservationDate)</code></pre>
+<pre><code>##    IndividualId Sex        DoB EventCount EventNr EventCode  EventDate ObservationDate
+## 1            87   m 1980-12-01          4       1       ENU 2004-11-10      2004-08-26
+## 2            87   m 1980-12-01          4       2       EXT 2007-11-02      2008-12-25
+## 3            87   m 1980-12-01          4       3       ENT 2002-11-27      2007-01-11
+## 4            87   m 1980-12-01          4       4       OBE 2008-02-15      2005-10-18
+## 5          3076   f 1981-01-08          6       1       IMG 2006-01-16      2005-11-18
+## 6          3076   f 1981-01-08          6       2       EXT 2006-05-16            &lt;NA&gt;
+## 7          3076   f 1981-01-08          6       3       ENT 2006-07-08      2006-10-03
+## 8          3076   f 1981-01-08          6       4       EXT 2007-11-20      2010-05-18
+## 9          3076   f 1981-01-08          6       5       ENT 1987-10-01      1987-12-15
+## 10         3076   f 1981-01-08          6       6       OBE 2008-01-12      2009-10-10</code></pre>
+<p>It appears that the two <code>ENT</code>-events out of range were coded incorrectly, possibly at data entry or -processing. We now might decide to either</p>
+<ul>
+<li>ignore the issue and to continue with the data as-is,</li>
+<li>impute plausible event dates for the out-of-range events, and to continue with the modifed data,</li>
+<li>remove the two subjects from the data set and further analysis.</li>
+</ul>
+<p>All of these are in principle valid approaches, depending on availability of background information, goals of the analysis and other circumstances. Here, we choose to eliminate subjects from the data, not because we feel that this is an especially suitable default behaviour, but because we want to demonstrate how we can manipulate an HDSS data set:</p>
+<pre class="sourceCode r"><code class="sourceCode r">testdata2 =<span class="st"> </span><span class="kw">filter</span>(testdata, !(IndividualId %in%<span class="st"> </span><span class="kw">c</span>(<span class="dv">87</span>, <span class="dv">3076</span>)) )</code></pre>
+<p>Note that the filtering here is very straightforward, because neither of the individuals had a delivery-event: in that case, we would need to decide how to deal with the birth events(s) that would have been (figuratively) orphaned by eliminating the mother from the data set.</p>
+</div>
+<div id="events-event-patterns-and-transitions" class="section level2">
+<h2>Events, event patterns and transitions</h2>
+<p>With a few exceptions, the diagnostics above are based on dates and comparison of dates. However, just looking at the frequency and sequence of events (as indicated by the event codes) can be highly informative. We’ll demonstrate with the slighlty revised test data below.</p>
+<p>Let’s start with a simple frequency distribution of events:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(testdata2$EventCode)</code></pre>
+<pre><code>## 
+##  BTH  DLV  DTH  ENT  ENU  EXT  IMG  OBE  OBL  OMG 
+##  521  521  145  686 7474  718 2127 9998  134 2005</code></pre>
+<p>We find</p>
+<ol style="list-style-type: decimal">
+<li><p><span class="math">\(n=9998\)</span> closing events (<code>OBE</code>), indicating that each individual in the data set has a closing event, as required by the HDSS specification;</p></li>
+<li><p>slightly more immigration into the study (<code>IMG</code>, <span class="math">\(n=2127\)</span>) than emigration from the study (<code>OMG</code>, <span class="math">\(n=2005\)</span>);</p></li>
+<li><p>a strong overhand of births (<code>BTH</code>, <span class="math">\(n=521\)</span>) over deaths (<code>DTH</code>, <span class="math">\(n=145\)</span>);</p></li>
+<li><p>as noted before, perfect agreement between the number of births (<code>BTH</code>) and deliveries (<code>DLV</code>), which is an artefact due to the synthetic nature of the data; however, this could be informative regarding unexpcted numbers of multiple births and/or still births;</p></li>
+<li><p>non-matching numbers of internal out- and in-migration (<code>EXT</code>, <span class="math">\(n=718\)</span>, and <code>ENT</code>, <span class="math">\(n=686\)</span>); by specification, these are two aspects of the same event, and should always appear matched, so apparently, the (fictitious) data collectors in this situation were not able to trace all cahnges of residence successfully.</p></li>
+</ol>
+<p>Let’s continue with looking at the frequencies of first/last events for each individual:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">firstEvents</span>(testdata2))</code></pre>
+<pre><code>## 
+##  BTH  DLV  ENU  IMG 
+##  521    7 7472 1998</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">lastEvents</span>(testdata2))</code></pre>
+<pre><code>## 
+##  OBE 
+## 9998</code></pre>
+<p>As suggested above, each individual has the required <code>OBE</code> event at the end of their event sequence, dating the end of follow-up for the subject. In the same manner, the birth-, enumeration- and immigration events are valid entry events as per specification, though the seven deliveries (<code>DLV</code>) are not.</p>
+<p>Finally, we can look at the transitions between event states as follows:</p>
+<pre class="sourceCode r"><code class="sourceCode r">trans =<span class="st"> </span><span class="kw">getTransitions</span>(testdata2)</code></pre>
+<p>This both counts the number of times any possible event code is followed by any other possible event code, and sums the total person time that is spent between the two events (in days). Let’s look at the counts first: here, the rows indicate the first (or source-) event, and the columns the second (or sink-) event.</p>
+<pre class="sourceCode r"><code class="sourceCode r">trans$counts</code></pre>
+<pre><code>##     BTH ENU IMG  OMG EXT ENT DTH DLV  OBE OBL OBS
+## BTH   0   1   3   42  22   0  20   0  432   1   0
+## ENU   0   0   0 1311 445   0 109 377 5171  61   0
+## IMG   0   0   0  511 134   0   8  76 1372  26   0
+## OMG   0   0 123    0   0   0   1   1 1843  37   0
+## EXT   0   0   0    0   0 686   0   0   28   4   0
+## ENT   0   0   0   96  95   0   5  27  459   4   0
+## DTH   0   0   0    0   0   0   0   0  145   0   0
+## DLV   0   1   3   45  22   0   2  33  414   1   0
+## OBE   0   0   0    0   0   0   0   0    0   0   0
+## OBL   0   0   0    0   0   0   0   0  134   0   0
+## OBS   0   0   0    0   0   0   0   0    0   0   0</code></pre>
+<p>(interpretation)</p>
+<p>These are the aggregated number of times elapsing between states:</p>
+<pre class="sourceCode r"><code class="sourceCode r">trans$deltaT</code></pre>
+<pre><code>##     BTH ENU   IMG    OMG    EXT   ENT   DTH    DLV     OBE   OBL OBS
+## BTH   0 264   623  12635   5554     0   737      0  221412   377   0
+## ENU   0   0     0 597798 190010     0 48858 167084 5322860 28512   0
+## IMG   0   0     0 165299  38212     0  2625  20319  629665 10029   0
+## OMG   0   0 45437      0      0     0    25    237  931907 10999   0
+## EXT   0   0     0      0      0 53515     0      0   16321   647   0
+## ENT   0   0     0  22110  20015     0  1433   6726  170398   712   0
+## DTH   0   0     0      0      0     0     0      0   81771     0   0
+## DLV   0 264   623  14657   5554     0   208  18245  203274   377   0
+## OBE   0   0     0      0      0     0     0      0       0     0   0
+## OBL   0   0     0      0      0     0     0      0   73468     0   0
+## OBS   0   0     0      0      0     0     0      0       0     0   0</code></pre>
+<p>(interpretation)</p>
+<p>We can use this to calculate average time between events, e.g. between birth into the study and death:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">with</span>(trans, deltaT[<span class="st">&quot;BTH&quot;</span>, <span class="st">&quot;DTH&quot;</span>]/counts[<span class="st">&quot;BTH&quot;</span>, <span class="st">&quot;DTH&quot;</span>])</code></pre>
+<pre><code>## [1] 36.85</code></pre>
+<p>indicating that average age at death for the children that were born into the cohort and died was ca. 37 days.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
