@@ -1,7 +1,7 @@
 # R.HDSS
 An R package to (pre-) process HDSS demographic data from the INDEPTH network
 
-This is a collection of R functions to work with demographic datasets curated by the [INDEPTH network](www.indepth-network.org/) 
+This is a collection of R functions to work with demographic datasets curated by the [INDEPTH network](www.indepth-network.org/#) 
 and available from the [INDEPTH data repository](http://www.indepth-ishare.org/index.php/home). HDSS (health and demographic 
 surveillance system) data files can be read into R and pre-processed, their content can be checked for quality issues, and events, 
 event patterns and transitions can be extracted and summarised before further processing.
